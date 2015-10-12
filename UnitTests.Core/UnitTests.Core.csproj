@@ -97,8 +97,8 @@
       <Link>AssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="ContextCacheTests.cs" />
-    <Compile Include="Helpers\DebugTextLogger.cs" />
-    <Compile Include="Helpers\DebugEventLogger.cs" />
+    <Compile Include="Mock\Helpers\DebugTextLogger.cs" />
+    <Compile Include="Mock\Helpers\DebugEventLogger.cs" />
     <Compile Include="RulesAndPolicyTests.cs" />
     <Compile Include="ItemCreationTests.cs" />
     <Compile Include="Mock\WorkItemLinkCollectionMock.cs" />
@@ -112,7 +112,7 @@
     <Compile Include="Mock\WorkItemRepositoryMock.cs" />
     <Compile Include="SingleParentChildAggregationsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Helpers\TestHelpers.cs" />
+    <Compile Include="Mock\Helpers\TestHelpers.cs" />
     <Compile Include="Mock\WorkItemLinkMock.cs" />
     <Compile Include="SettingsTests.cs" />
   </ItemGroup>

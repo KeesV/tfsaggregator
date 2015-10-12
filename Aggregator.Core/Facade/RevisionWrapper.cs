@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Aggregator.Core.Interfaces;
+using Aggregator.Core.Monitoring;
 
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
 
@@ -10,9 +11,12 @@ namespace Aggregator.Core.Facade
     {
         private readonly Revision revision;
 
-        public RevisionWrapper(Revision revision)
+        private readonly ILogEvents logger;
+
+        public RevisionWrapper(Revision revision, ILogEvents logger)
         {
             this.revision = revision;
+            this.logger = logger;
         }
 
         public object this[string name]
@@ -27,7 +31,7 @@ namespace Aggregator.Core.Facade
         {
             get
             {
-                return new FieldCollectionWrapper(this.revision.Fields);
+                return new FieldCollectionWrapper(this.revision.Fields, this.logger);
             }
         }
 

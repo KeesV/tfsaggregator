@@ -377,5 +377,15 @@ namespace Aggregator.Core.Monitoring
                 this.logger.Log(LogLevel.Diagnostic, "Built a new Work Item Repository for {0}", uri);
             }
         }
+
+        public void ValueAssignmentRequiresUnsupportedConversion(Type dataType, object value)
+        {
+            this.logger.Log(LogLevel.Verbose, "Unable to convert {1} to {0}", dataType, value);
+        }
+
+        public void ValueAsignmentRequiresConversion(Type dataType, Type type, object value)
+        {
+            this.logger.Log(LogLevel.Verbose, "Converting {2} from {0} to {1}", dataType, type, value);
+        }
     }
 }

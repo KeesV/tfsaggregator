@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using Aggregator.Core.Extensions;
 using Aggregator.Core.Interfaces;
+using Aggregator.Core.Monitoring;
 
 namespace UnitTests.Core.Mock
 {
@@ -12,9 +13,12 @@ namespace UnitTests.Core.Mock
 
         private readonly WorkItemMock workItemMock;
 
-        public FieldCollectionMock(WorkItemMock workItemMock)
+        private readonly ILogEvents logger;
+
+        public FieldCollectionMock(WorkItemMock workItemMock, ILogEvents logger)
         {
             this.workItemMock = workItemMock;
+            this.logger = logger;
         }
 
         public IField this[string name]
@@ -23,8 +27,8 @@ namespace UnitTests.Core.Mock
             {
                 if (!this.fields.ContainsKey(name))
                 {
-                    IField field = new FieldMock(this.workItemMock, name);
-                    this.fields.Add(name, new DoubleFixFieldDecorator(field));
+                    IField field = new FieldMock(this.workItemMock, name, this.logger);
+                    this.fields.Add(name, new DoubleFixFieldDecorator(field, this.logger));
                 }
 
                 return this.fields[name];

@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Aggregator.Core.Extensions;
+
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
 
 namespace Aggregator.Core.Interfaces
@@ -13,11 +15,11 @@ namespace Aggregator.Core.Interfaces
 
         string ReferenceName { get; }
 
-        object Value { get; set; }
+        FieldValue Value { get; set; }
 
         FieldStatus Status { get; }
 
-        object OriginalValue { get; }
+        FieldValue OriginalValue { get; }
 
         Type DataType { get; }
     }

@@ -18,8 +18,7 @@ namespace Aggregator.Core.Extensions
         {
             try
             {
-                TType convertedValue = (TType)self[fieldName];
-                return convertedValue;
+                return (TType)(object)self[fieldName];
             }
             catch (Exception)
             {

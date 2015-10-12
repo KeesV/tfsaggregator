@@ -9,6 +9,7 @@ using Aggregator.Core.Interfaces;
 using Aggregator.Core.Monitoring;
 
 using Microsoft.TeamFoundation.Framework.Server;
+using Microsoft.TeamFoundation.WorkItemTracking.WebApi.Preview.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using NSubstitute;
@@ -30,9 +31,9 @@ namespace UnitTests.Core
             this.workItem = Substitute.For<IWorkItem>();
             this.workItem.Id.Returns(1);
             this.workItem.TypeName.Returns("Task");
-            this.workItem.Fields["Estimated Work"].Value = 0.0D;
-            this.workItem.Fields["Estimated Dev Work"].Value.Returns(1.0D);
-            this.workItem.Fields["Estimated Test Work"].Value.Returns(2.0D);
+            this.workItem["Estimated Work"] = 0.0D;
+            this.workItem.Fields["Estimated Dev Work"].Value.Returns((Aggregator.Core.Extensions.FieldValue)1.0D);
+            this.workItem.Fields["Estimated Test Work"].Value.Returns((Aggregator.Core.Extensions.FieldValue)2.0D);
             this.workItem.IsValid().Returns(true);
 
             // triggers save
@@ -52,9 +53,9 @@ namespace UnitTests.Core
             this.workItem = Substitute.For<IWorkItem>();
             this.workItem.Id.Returns(1);
             this.workItem.TypeName.Returns("Task");
-            this.workItem["Estimated Dev Work"].Returns(1.0D);
-            this.workItem["Estimated Test Work"].Returns(2.0D);
-            this.workItem["Finish Date"].Returns(new DateTime(2010, 1, 1));
+            this.workItem["Estimated Dev Work"].Returns((Aggregator.Core.Extensions.FieldValue)1.0D);
+            this.workItem["Estimated Test Work"].Returns((Aggregator.Core.Extensions.FieldValue)2.0D);
+            this.workItem["Finish Date"].Returns((Aggregator.Core.Extensions.FieldValue)new DateTime(2010, 1, 1));
             this.workItem.IsValid().Returns(true);
 
             // triggers save
@@ -85,7 +86,7 @@ namespace UnitTests.Core
 
                 Assert.AreEqual(0, result.ExceptionProperties.Count());
                 this.workItem.Received().Save();
-                Assert.AreEqual(3.0D, this.workItem.Fields["Estimated Work"].Value);
+                Assert.AreEqual(3.0D, (double)this.workItem.Fields["Estimated Work"].Value);
                 Assert.AreEqual(EventNotificationStatus.ActionPermitted, result.NotificationStatus);
             }
         }
@@ -109,7 +110,7 @@ namespace UnitTests.Core
 
                 Assert.AreEqual(0, result.ExceptionProperties.Count());
                 this.workItem.Received().Save();
-                Assert.AreEqual(3.0D, this.workItem["Estimated Work"]);
+                Assert.AreEqual(3.0D, (double)this.workItem["Estimated Work"]);
                 Assert.AreEqual(EventNotificationStatus.ActionPermitted, result.NotificationStatus);
             }
         }
@@ -133,7 +134,7 @@ namespace UnitTests.Core
 
                 Assert.AreEqual(0, result.ExceptionProperties.Count());
                 this.workItem.Received().Save();
-                Assert.AreEqual(3.0D, this.workItem["Estimated Work"]);
+                Assert.AreEqual(3.0D, (double)this.workItem["Estimated Work"]);
                 Assert.AreEqual(EventNotificationStatus.ActionPermitted, result.NotificationStatus);
             }
         }
@@ -189,8 +190,8 @@ namespace UnitTests.Core
                 Assert.IsFalse(child.InternalWasSaveCalled);
                 Assert.IsTrue(parent.InternalWasSaveCalled);
                 Assert.IsFalse(grandParent.InternalWasSaveCalled);
-                Assert.AreEqual(3.0D, parent["Total Work Remaining"]);
-                Assert.AreEqual(30.0D, parent["Total Estimate"]);
+                Assert.AreEqual(3.0D, (double)parent["Total Work Remaining"]);
+                Assert.AreEqual(30.0D, (double)parent["Total Estimate"]);
                 Assert.AreEqual(EventNotificationStatus.ActionPermitted, result.NotificationStatus);
             }
         }
@@ -205,8 +206,8 @@ namespace UnitTests.Core
             var grandParent = new WorkItemMock(alternateRepository);
             grandParent.Id = 1;
             grandParent.TypeName = "Feature";
-            grandParent["Dev Estimate"] = null;
-            grandParent["Test Estimate"] = null;
+            grandParent["Dev Estimate"] = new Aggregator.Core.Extensions.FieldValue(typeof(double), logger, null);
+            grandParent["Test Estimate"] = new Aggregator.Core.Extensions.FieldValue(typeof(double), logger, null);
 
             var parent = new WorkItemMock(alternateRepository);
             parent.Id = 2;
@@ -246,8 +247,8 @@ namespace UnitTests.Core
                 Assert.IsFalse(child.InternalWasSaveCalled);
                 Assert.IsTrue(parent.InternalWasSaveCalled);
                 Assert.IsFalse(grandParent.InternalWasSaveCalled);
-                Assert.AreEqual(2.0D, parent["Total Work Remaining"]);
-                Assert.AreEqual(30.0D, parent["Total Estimate"]);
+                Assert.AreEqual(2.0D, (double)parent["Total Work Remaining"]);
+                Assert.AreEqual(30.0D, (double)parent["Total Estimate"]);
                 Assert.AreEqual(EventNotificationStatus.ActionPermitted, result.NotificationStatus);
             }
         }

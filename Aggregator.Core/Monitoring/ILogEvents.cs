@@ -99,5 +99,9 @@ namespace Aggregator.Core.Monitoring
         void RuleScopeMatchResult(RuleScope scope, ScopeMatchResult result);
 
         void WorkItemRepositoryBuilt(Uri uri, IdentityDescriptor toImpersonate);
+
+        void ValueAssignmentRequiresUnsupportedConversion(Type dataType, object value);
+
+        void ValueAsignmentRequiresConversion(Type dataType, Type type, object value);
     }
 }

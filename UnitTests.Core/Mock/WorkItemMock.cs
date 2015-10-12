@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 using Aggregator.Core;
+using Aggregator.Core.Extensions;
 using Aggregator.Core.Interfaces;
 using Aggregator.Core.Navigation;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
@@ -16,7 +17,7 @@ namespace UnitTests.Core.Mock
         public WorkItemMock(WorkItemRepositoryMock store)
             : base(store, store.Logger)
         {
-            this.fields = new FieldCollectionMock(this);
+            this.fields = new FieldCollectionMock(this, store.Logger);
             this.IsDirty = false;
         }
 
@@ -67,7 +68,7 @@ namespace UnitTests.Core.Mock
             this.internalSaveCalled++;
         }
 
-        public object this[string name]
+        public FieldValue this[string name]
         {
             get
             {

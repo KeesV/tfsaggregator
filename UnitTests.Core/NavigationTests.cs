@@ -109,7 +109,7 @@ return searchResult;
 
             workItem.TransitionToState(targetState, "test");
 
-            Assert.AreEqual(targetState, workItem.Fields["State"].Value);
+            Assert.AreEqual(targetState, (string)workItem.Fields["State"].Value);
             Assert.IsTrue(workItem.InternalWasSaveCalled);
         }
 
@@ -127,7 +127,7 @@ return searchResult;
             workItem.Id = 42;
             workItem.Type = workItemType;
             workItem.TypeName = workItemType.Name;
-            FieldMock mockedField = new FieldMock(workItem, "State");
+            FieldMock mockedField = new FieldMock(workItem, "State", repository.Logger);
             workItem.Fields[mockedField.Name] = mockedField;
             mockedField.OriginalValue = string.Empty;
             workItem.Fields["State"].Value = workItem.Fields["State"].OriginalValue;
@@ -137,7 +137,7 @@ return searchResult;
 
             workItem.TransitionToState(targetState, "test");
 
-            Assert.AreEqual(targetState, workItem.Fields["State"].Value);
+            Assert.AreEqual(targetState, (string)workItem.Fields["State"].Value);
             Assert.AreEqual(2, workItem.InternalSaveCount);
         }
 
@@ -156,7 +156,7 @@ return searchResult;
             workItem.Type = workItemType;
             workItem.TypeName = workItemType.Name;
 
-            FieldMock mockedField = new FieldMock(workItem, "State");
+            FieldMock mockedField = new FieldMock(workItem, "State", repository.Logger);
             mockedField.Value = string.Empty;
             mockedField.OriginalValue = string.Empty;
             mockedField.Status = Microsoft.TeamFoundation.WorkItemTracking.Client.FieldStatus.InvalidValueNotInOtherField;
@@ -167,8 +167,8 @@ return searchResult;
 
             workItem.TransitionToState(targetState, "test");
 
-            Assert.AreNotEqual(targetState, workItem.Fields["State"].Value);
-            Assert.AreEqual(workItem.Fields["State"].OriginalValue, workItem.Fields["State"].Value);
+            Assert.AreNotEqual(targetState, (string)workItem.Fields["State"].Value);
+            Assert.AreEqual((string)workItem.Fields["State"].OriginalValue, (string)workItem.Fields["State"].Value);
             Assert.IsFalse(workItem.InternalWasSaveCalled);
         }
 
@@ -191,7 +191,7 @@ self.TransitionToState(""Done"", ""script test"");
             workItem.Type = workItemType;
             workItem.TypeName = workItemType.Name;
 
-            FieldMock mockedField = new FieldMock(workItem, "State");
+            FieldMock mockedField = new FieldMock(workItem, "State", repository.Logger);
             workItem.Fields[mockedField.Name] = mockedField;
             mockedField.OriginalValue = string.Empty;
             mockedField.Value = mockedField.OriginalValue;
@@ -202,7 +202,7 @@ self.TransitionToState(""Done"", ""script test"");
             var engine = new CSharpScriptEngine(logger, false);
             engine.LoadAndRun("test", script, workItem, repository);
 
-            Assert.AreEqual("Done", workItem.Fields["State"].Value);
+            Assert.AreEqual("Done", (string)workItem.Fields["State"].Value);
             Assert.AreEqual(2, workItem.InternalSaveCount);
         }
     }

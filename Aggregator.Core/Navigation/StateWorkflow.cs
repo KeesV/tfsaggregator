@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 
+using Aggregator.Core.Extensions;
 using Aggregator.Core.Interfaces;
 using Aggregator.Core.Monitoring;
 
@@ -32,7 +33,7 @@ namespace Aggregator.Core.Navigation
         public static void TransitionToState(IWorkItem workItem, string state, string commentPrefix, ILogEvents logger)
         {
             // Set the sourceWorkItem's state so that it is clear that it has been moved.
-            string originalState = (string)workItem.Fields["State"].Value;
+            string originalState = (string)(FieldValue)workItem["State"];
 
             // Try to set the state of the source work item to the "Deleted/Moved" state (whatever is defined in the file).
 
@@ -40,7 +41,7 @@ namespace Aggregator.Core.Navigation
             workItem.TryOpen();
 
             // See if we can go directly to the planned state.
-            workItem.Fields["State"].Value = state;
+            workItem.Fields["State"].Value = (string)state;
 
             if (workItem.Fields["State"].Status != FieldStatus.Valid)
             {

@@ -6,6 +6,7 @@ using System.Management.Automation;
 
 using Aggregator.Core;
 using Aggregator.Core.Context;
+using Aggregator.Core.Extensions;
 using Aggregator.Core.Interfaces;
 using Aggregator.Core.Monitoring;
 
@@ -36,17 +37,17 @@ return self.Fields[""z""].Value;
             var xField = Substitute.For<IField>();
             var zField = Substitute.For<IField>();
             workItem.Id.Returns(1);
-            xField.OriginalValue.Returns(11);
+            xField.OriginalValue.Returns((FieldValue)11);
             workItem.Fields["x"] = xField;
             workItem.Fields["z"] = zField;
-            zField.Value.Returns(42);
+            zField.Value.Returns((FieldValue)42);
             repository.GetWorkItem(1).Returns(workItem);
             var logger = Substitute.For<ILogEvents>();
             var engine = new CSharpScriptEngine(logger, Debugger.IsAttached);
             engine.LoadAndRun("test", script, workItem, repository);
 
-            Assert.AreEqual(33, xField.Value);
-            object expected = 42;
+            Assert.AreEqual(33, (int)xField.Value);
+            object expected = new FieldValue(null, null, 42);
             logger.Received().ResultsFromScriptRun("test", expected);
         }
 
@@ -62,14 +63,14 @@ return self[""z""];
             var workItem = Substitute.For<IWorkItem>();
             workItem.Id.Returns(1);
             workItem["x"] = 11;
-            workItem["z"].Returns(42);
+            workItem["z"].Returns((FieldValue)42);
             repository.GetWorkItem(1).Returns(workItem);
             var logger = Substitute.For<ILogEvents>();
             var engine = new CSharpScriptEngine(logger, Debugger.IsAttached);
             engine.LoadAndRun("test", script, workItem, repository);
 
-            Assert.AreEqual(33, workItem["x"]);
-            object expected = 42;
+            Assert.AreEqual(33, (int)workItem["x"]);
+            object expected = new FieldValue(null, null, 42);
             logger.Received().ResultsFromScriptRun("test", expected);
         }
 
@@ -85,7 +86,7 @@ return self(""z"")
             var workItem = Substitute.For<IWorkItem>();
             workItem.Id.Returns(1);
             workItem["x"] = 11;
-            workItem["z"].Returns(42);
+            workItem["z"].Returns((FieldValue)42);
             repository.GetWorkItem(1).Returns(workItem);
             var logger = Substitute.For<ILogEvents>();
             logger.WhenForAnyArgs(c => Debug.WriteLine(c));
@@ -93,8 +94,8 @@ return self(""z"")
 
             engine.LoadAndRun("test", script, workItem, repository);
 
-            Assert.AreEqual(33, workItem["x"]);
-            object expected = 42;
+            Assert.AreEqual(33, (int)workItem["x"]);
+            object expected = new FieldValue(null, null, 42);
             logger.Received().ResultsFromScriptRun("test", expected);
         }
 
@@ -122,13 +123,13 @@ return $self.Fields[""z""].Value ";
             var engine = new PsScriptEngine(logger, Debugger.IsAttached);
 
             // sanity check
-            Assert.AreEqual(42, workItem.Fields["z"].Value);
+            Assert.AreEqual(42, (int)workItem.Fields["z"].Value);
 
             engine.LoadAndRun("test", script, workItem, repository);
 
             var expected = new Collection<PSObject> { new PSObject(42) };
 
-            Assert.AreEqual(33, workItem.Fields["x"].Value);
+            Assert.AreEqual(33, (int)workItem.Fields["x"].Value);
 
             logger.Received().ResultsFromScriptRun(
                 "test",

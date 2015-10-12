@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
+using Aggregator.Core.Extensions;
 using Aggregator.Core.Navigation;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
 
@@ -24,7 +25,7 @@ namespace Aggregator.Core.Interfaces
 
         bool IsValid();
 
-        object this[string name] { get; set; }
+        FieldValue this[string name] { get; set; }
 
         string TypeName { get; }
 

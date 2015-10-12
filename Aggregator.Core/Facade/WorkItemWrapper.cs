@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Aggregator.Core.Context;
+using Aggregator.Core.Extensions;
 using Aggregator.Core.Interfaces;
 using Aggregator.Core.Monitoring;
 using Aggregator.Core.Navigation;
@@ -64,7 +65,7 @@ namespace Aggregator.Core.Facade
             }
         }
 
-        public object this[string name]
+        public FieldValue this[string name]
         {
             get
             {
@@ -83,7 +84,7 @@ namespace Aggregator.Core.Facade
         {
             get
             {
-                return new FieldCollectionWrapper(this.workItem.Fields);
+                return new FieldCollectionWrapper(this.workItem.Fields, this.Logger);
             }
         }
 
@@ -165,7 +166,7 @@ namespace Aggregator.Core.Facade
             {
                 // works even on a new workitem with no revisions...
                 return new RevisionWrapper(
-                    this.workItem.Revisions[this.workItem.Revisions.Count - 1]);
+                    this.workItem.Revisions[this.workItem.Revisions.Count - 1], this.Logger);
             }
         }
 

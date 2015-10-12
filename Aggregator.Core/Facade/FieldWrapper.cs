@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Globalization;
 
+using Aggregator.Core.Extensions;
 using Aggregator.Core.Interfaces;
+using Aggregator.Core.Monitoring;
 
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
 
@@ -11,9 +13,12 @@ namespace Aggregator.Core.Facade
     {
         private readonly Field tfsField;
 
-        public FieldWrapper(Field field)
+        private readonly ILogEvents logger;
+
+        public FieldWrapper(Field field, ILogEvents logger)
         {
             this.tfsField = field;
+            this.logger = logger;
         }
 
         public string Name
@@ -32,27 +37,37 @@ namespace Aggregator.Core.Facade
             }
         }
 
-        public object Value
+        public FieldValue Value
         {
             get
             {
-                return this.tfsField.Value;
+                return this.tfsField.Value == null
+                    ? null
+                    : new FieldValue(this.DataType, this.logger, this.tfsField.Value);
             }
 
             set
             {
-                this.tfsField.Value = value;
+                this.tfsField.Value = value == null ? null : Convert.ChangeType(value, this.DataType);
             }
         }
 
         public FieldStatus Status
         {
-            get { return this.tfsField.Status; }
+            get
+            {
+                return this.tfsField.Status;
+            }
         }
 
-        public object OriginalValue
+        public FieldValue OriginalValue
         {
-            get { return this.tfsField.OriginalValue; }
+            get
+            {
+                return this.tfsField.OriginalValue == null
+                    ? null
+                    : new FieldValue(this.DataType, this.logger, this.tfsField.OriginalValue);
+            }
         }
 
         public Type DataType

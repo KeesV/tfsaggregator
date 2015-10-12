@@ -2,6 +2,7 @@
 using System.Globalization;
 
 using Aggregator.Core.Interfaces;
+using Aggregator.Core.Monitoring;
 
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
 
@@ -11,7 +12,7 @@ namespace Aggregator.Core.Extensions
     {
         private readonly IField decoratedField;
 
-        public DoubleFixFieldDecorator(IField decoratedField)
+        public DoubleFixFieldDecorator(IField decoratedField, ILogEvents logger)
         {
             this.decoratedField = decoratedField;
         }
@@ -32,7 +33,7 @@ namespace Aggregator.Core.Extensions
             }
         }
 
-        public object Value
+        public FieldValue Value
         {
             get
             {
@@ -47,8 +48,8 @@ namespace Aggregator.Core.Extensions
                     && this.DataType == typeof(double))
                 {
                     CultureInfo invariant = CultureInfo.InvariantCulture;
-                    decimal current = decimal.Parse(Convert.ToDouble(this.Value, invariant).ToString(invariant), invariant);
-                    decimal proposed = decimal.Parse(Convert.ToDouble(value, invariant).ToString(invariant), invariant);
+                    decimal current = decimal.Parse(((double)this.Value).ToString(invariant), invariant);
+                    decimal proposed = decimal.Parse(((double)value).ToString(invariant), invariant);
 
                     // Ignore when the same value is assigned.
                     if (current == proposed)
@@ -69,7 +70,7 @@ namespace Aggregator.Core.Extensions
             }
         }
 
-        public object OriginalValue
+        public FieldValue OriginalValue
         {
             get
             {

@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Management.Automation.Runspaces;
+using System.Reflection.Emit;
 
+using Aggregator.Core.Extensions;
 using Aggregator.Core.Interfaces;
+using Aggregator.Core.Monitoring;
 
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
 
@@ -10,11 +14,14 @@ namespace UnitTests.Core.Mock
     {
         private readonly WorkItemMock workItemMock;
 
+        private readonly ILogEvents logger;
+
         private object value;
 
-        public FieldMock(WorkItemMock workItemMock, string name)
+        public FieldMock(WorkItemMock workItemMock, string name, ILogEvents logger)
         {
             this.workItemMock = workItemMock;
+            this.logger = logger;
             this.Name = name;
         }
 
@@ -22,23 +29,33 @@ namespace UnitTests.Core.Mock
 
         public string ReferenceName { get; set; }
 
-        public object Value
+        public FieldValue Value
         {
             get
             {
-                return this.value;
+                return this.value == null ? null : new FieldValue(this.DataType, this.logger, this.value);
             }
 
             set
             {
-                this.value = value;
-                this.workItemMock.IsDirty = true;
+                object proposed;
+                proposed = value == null ? null : Convert.ChangeType(value, this.DataType);
+
+                object original;
+                original = this.OriginalValue == null ? null : Convert.ChangeType(this.OriginalValue, this.DataType);
+
+                this.value = proposed;
+
+                if (original != proposed)
+                {
+                    this.workItemMock.IsDirty = true;
+                }
             }
         }
 
         public FieldStatus Status { get; set; }
 
-        public object OriginalValue { get; set; }
+        public FieldValue OriginalValue { get; set; }
 
         private Type dataType;
 
@@ -46,7 +63,7 @@ namespace UnitTests.Core.Mock
         {
             get
             {
-                return this.dataType ?? this.Value?.GetType() ?? typeof(object);
+                return this.dataType ?? this.value?.GetType() ?? typeof(object);
             }
 
             set

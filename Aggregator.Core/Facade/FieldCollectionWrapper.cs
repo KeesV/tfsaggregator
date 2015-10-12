@@ -6,6 +6,7 @@ using System.Linq;
 
 using Aggregator.Core.Extensions;
 using Aggregator.Core.Interfaces;
+using Aggregator.Core.Monitoring;
 
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
 
@@ -15,9 +16,12 @@ namespace Aggregator.Core.Facade
     {
         private readonly FieldCollection fields;
 
-        public FieldCollectionWrapper(FieldCollection fieldCollection)
+        private readonly ILogEvents logger;
+
+        public FieldCollectionWrapper(FieldCollection fieldCollection, ILogEvents logger)
         {
             this.fields = fieldCollection;
+            this.logger = logger;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarQube", "S3237:\"value\" parameters should be used", Justification = "Available for mock testing only")]
@@ -47,8 +51,8 @@ namespace Aggregator.Core.Facade
 
         private IField ApplyDoubleFix(Field field)
         {
-            IField wrappedField = new FieldWrapper(field);
-            IField fixedField = new DoubleFixFieldDecorator(wrappedField);
+            IField wrappedField = new FieldWrapper(field, this.logger);
+            IField fixedField = new DoubleFixFieldDecorator(wrappedField, this.logger);
             return fixedField;
         }
     }

@@ -9,7 +9,6 @@ using Aggregator.Core.Interfaces;
 using Aggregator.Core.Monitoring;
 
 using Microsoft.TeamFoundation.Framework.Server;
-using Microsoft.TeamFoundation.WorkItemTracking.WebApi.Preview.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using NSubstitute;

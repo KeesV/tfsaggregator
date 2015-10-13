@@ -188,7 +188,7 @@ namespace Aggregator.Core.Extensions
 
         public TypeCode GetTypeCode()
         {
-            throw new NotImplementedException();
+            return TypeCode.Object;
         }
 
         public bool ToBoolean(IFormatProvider provider)

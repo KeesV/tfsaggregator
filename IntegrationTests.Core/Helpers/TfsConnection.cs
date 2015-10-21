@@ -1,4 +1,8 @@
-﻿using Microsoft.TeamFoundation.Client;
+﻿using Aggregator.ConsoleApp;
+using Aggregator.Core;
+using Aggregator.Core.Context;
+using Aggregator.Core.Monitoring;
+using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
 using System;
 using System.Collections.Generic;
@@ -65,6 +69,23 @@ namespace IntegrationTests.Core.Helpers
         }
 
         /// <summary>
+        /// Change a specified work item
+        /// </summary>
+        /// <param name="fieldValues">The fields/values to change</param>
+        /// <param name="workItemId">The Id of the work item to change</param>
+        public void ChangeWi(List<FieldValuePair> fieldValues, int workItemId)
+        {
+            WorkItem wi = _workItemStore.GetWorkItem(workItemId);
+
+            foreach (FieldValuePair fv in fieldValues)
+            {
+                wi.Fields[fv.FieldReferenceName].Value = fv.FieldValue;
+            }
+
+            wi.Save();
+        }
+
+        /// <summary>
         /// Destroys work items with the given Ids
         /// </summary>
         /// <param name="wisToDestroy">The Ids of the work items to destroy</param>
@@ -91,6 +112,50 @@ namespace IntegrationTests.Core.Helpers
                 idsToDestroy.Add(wi.Id);
             }
             DestroyWis(idsToDestroy);
+        }
+
+        public int ApplyAggregatorPolicy(string policyFileName, string project, int workItemId)
+        {
+            var logger = new DebugEventLogger(LogLevel.Warning);
+            var context = new RequestContext(Tfs.Uri.ToString(), project);
+            var runtime = RuntimeContext.GetContext(
+                () => policyFileName,
+                context,
+                logger,
+                (collectionUri, toImpersonate, logEvents) =>
+                    new Aggregator.Core.Facade.WorkItemRepository(collectionUri, toImpersonate, logEvents));
+
+            using (EventProcessor eventProcessor = new EventProcessor(runtime))
+            {
+                try
+                {
+                    var workItemIds = new Queue<int>();
+                    workItemIds.Enqueue(workItemId);
+
+                    ProcessingResult result = null;
+                    while (workItemIds.Count > 0)
+                    {
+                        context.CurrentWorkItemId = workItemIds.Dequeue();
+                        var notification = context.Notification;
+
+                        logger.StartingProcessing(context, notification);
+                        result = eventProcessor.ProcessEvent(context, notification);
+                        logger.ProcessingCompleted(result);
+
+                        foreach (var savedId in eventProcessor.SavedWorkItems)
+                        {
+                            workItemIds.Enqueue(savedId);
+                        }
+                    }
+                    return result.StatusCode;
+                }
+
+                catch (Exception e)
+                {
+                    logger.ProcessEventException(e);
+                    return 1;
+                }
+            }
         }
     }
 }

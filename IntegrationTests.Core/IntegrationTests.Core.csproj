@@ -240,16 +240,23 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Helpers\DebugEventLogger.cs" />
+    <Compile Include="Helpers\DebugTextLogger.cs" />
     <Compile Include="Helpers\FieldValuePair.cs" />
     <Compile Include="Helpers\TfsConnection.cs" />
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="IntegrationTests1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <EmbeddedResource Include="ConfigurationsForTests\NoOp.policies" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Aggregator.ConsoleApp\Aggregator.ConsoleApp.csproj">
+      <Project>{200cf240-476e-4429-a8fc-66001806a2de}</Project>
+      <Name>Aggregator.ConsoleApp</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Aggregator.Core\Aggregator.Core.csproj">
       <Project>{fea76835-61b3-4fc7-9d6f-50d39a7a8258}</Project>
       <Name>Aggregator.Core</Name>

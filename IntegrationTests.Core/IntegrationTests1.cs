@@ -21,7 +21,7 @@ namespace IntegrationTests.Core
         {
             if (Tfs == null)
             {
-                Tfs = new TfsConnection("http://tfsserver13:8080/tfs/DefaultCollection/", "username", "password", "domain");
+                Tfs = new TfsConnection("http://tfsserver13:8080/tfs/DefaultCollection/", "", "", "tfsserver13");
 
                 //Destroy all WorkItems in the Project
                 Tfs.DestroyAllWisInProject(projectName);
@@ -38,26 +38,40 @@ namespace IntegrationTests.Core
             int firstWorkItem;
 
             //Create the work item(s)
-            List<FieldValuePair> fvps = new List<FieldValuePair>()
+            WorkItemState initState = new WorkItemState()
             {
-                new FieldValuePair() { FieldReferenceName = "System.Title", FieldValue = "Demo Work Item 1" },
-                new FieldValuePair() { FieldReferenceName = "System.Description", FieldValue = "Demo Description" }
+                FieldValues = {
+                    new FieldValuePair() { FieldReferenceName = "System.Title", FieldValue = "Demo Work Item 1" },
+                    new FieldValuePair() { FieldReferenceName = "System.Description", FieldValue = "Demo Description" }
+                }
             };
-            firstWorkItem = Tfs.CreateWi(fvps, "Product Backlog Item", projectName);
+            firstWorkItem = Tfs.CreateWi(initState, "Product Backlog Item", projectName);
 
             //Apply some changes to work item(s)
-            List<FieldValuePair> fvpsNew = new List<FieldValuePair>()
+            WorkItemState newState = new WorkItemState()
             {
-                new FieldValuePair() { FieldReferenceName = "System.Title", FieldValue = "Demo Work Item 1 Updated!" },
-                new FieldValuePair() { FieldReferenceName = "System.Description", FieldValue = "Demo Description Updated!" }
+                FieldValues = {
+                    new FieldValuePair() { FieldReferenceName = "System.Title", FieldValue = "Demo Work Item 1 Updated!" },
+                    new FieldValuePair() { FieldReferenceName = "System.Description", FieldValue = "Demo Description Updated!" }
+                }
             };
-            Tfs.ChangeWi(fvpsNew, firstWorkItem);
+            Tfs.SetupWiState(newState, firstWorkItem);
 
             //Apply the specified policy using the Aggregator
             int aggregatorReturnCode = Tfs.ApplyAggregatorPolicy(policyFileName, projectName, firstWorkItem);
 
             //Verify result
+            WorkItemState desiredState = new WorkItemState()
+            {
+                FieldValues = {
+                    new FieldValuePair() { FieldReferenceName = "System.Title", FieldValue = "Demo Work Item 1 Updated!" },
+                    new FieldValuePair() { FieldReferenceName = "System.Description", FieldValue = "Demo Description Updated!" }
+                }
+            };
+
             Assert.AreEqual(aggregatorReturnCode, 0);
+
+            Tfs.AssertWiState(desiredState, firstWorkItem);
 
             //Clean up after the test
             Tfs.DestroyWis(new List<int> { firstWorkItem });

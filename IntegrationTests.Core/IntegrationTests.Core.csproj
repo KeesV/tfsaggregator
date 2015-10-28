@@ -244,6 +244,7 @@
     <Compile Include="Helpers\DebugTextLogger.cs" />
     <Compile Include="Helpers\FieldValuePair.cs" />
     <Compile Include="Helpers\TfsConnection.cs" />
+    <Compile Include="Helpers\WorkItemState.cs" />
     <Compile Include="IntegrationTests1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

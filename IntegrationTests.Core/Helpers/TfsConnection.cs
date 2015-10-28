@@ -4,6 +4,7 @@ using Aggregator.Core.Context;
 using Aggregator.Core.Monitoring;
 using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,7 +51,7 @@ namespace IntegrationTests.Core.Helpers
         /// <param name="workItemType">The work item type to create</param>
         /// <param name="project">The project in which to create the work item</param>
         /// <returns>The Id of the newly created work item</returns>
-        public int CreateWi(List<FieldValuePair> fieldValues, string workItemType, string project)
+        public int CreateWi(WorkItemState stateToCreate, string workItemType, string project)
         {
 
             Project teamProject = _workItemStore.Projects[project];
@@ -58,7 +59,7 @@ namespace IntegrationTests.Core.Helpers
 
             WorkItem wi = new WorkItem(wit);
 
-            foreach (FieldValuePair fv in fieldValues)
+            foreach (FieldValuePair fv in stateToCreate.FieldValues)
             {
                 wi.Fields[fv.FieldReferenceName].Value = fv.FieldValue;
             }
@@ -73,11 +74,11 @@ namespace IntegrationTests.Core.Helpers
         /// </summary>
         /// <param name="fieldValues">The fields/values to change</param>
         /// <param name="workItemId">The Id of the work item to change</param>
-        public void ChangeWi(List<FieldValuePair> fieldValues, int workItemId)
+        public void SetupWiState(WorkItemState newState, int workItemId)
         {
             WorkItem wi = _workItemStore.GetWorkItem(workItemId);
 
-            foreach (FieldValuePair fv in fieldValues)
+            foreach (FieldValuePair fv in newState.FieldValues)
             {
                 wi.Fields[fv.FieldReferenceName].Value = fv.FieldValue;
             }
@@ -114,6 +115,13 @@ namespace IntegrationTests.Core.Helpers
             DestroyWis(idsToDestroy);
         }
 
+        /// <summary>
+        /// Applies a specified TFS Aggregator policy to the specified Project and Work Item
+        /// </summary>
+        /// <param name="policyFileName">The policy file to apply</param>
+        /// <param name="project">The Team Project to apply the policy to</param>
+        /// <param name="workItemId">The ID of the work item to apply the policy to</param>
+        /// <returns></returns>
         public int ApplyAggregatorPolicy(string policyFileName, string project, int workItemId)
         {
             var logger = new DebugEventLogger(LogLevel.Warning);
@@ -155,6 +163,16 @@ namespace IntegrationTests.Core.Helpers
                     logger.ProcessEventException(e);
                     return 1;
                 }
+            }
+        }
+
+        public void AssertWiState(WorkItemState desiredState, int workItemId)
+        {
+            WorkItem wi = _workItemStore.GetWorkItem(workItemId);
+
+            foreach(FieldValuePair fv in desiredState.FieldValues)
+            {
+                Assert.AreEqual(fv.FieldValue, wi.Fields[fv.FieldReferenceName].Value);
             }
         }
     }
